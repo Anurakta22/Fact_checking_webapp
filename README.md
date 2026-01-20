@@ -8,8 +8,8 @@ This tool acts as a **fact-checking layer** between content drafts and the final
 
 ## 🚀 Live Demo
 
-- **Deployed App:** https://<your-streamlit-app-url>
-- **Demo Video:** https://<your-demo-video-link>
+- **Deployed App:** https://factcheckingwebapp-anuraktadash.streamlit.app/
+- **Demo Video:** https://drive.google.com/file/d/1794GFezhVMr66EI6p-0cKI1z6rWuQsBW/view?usp=sharing
 
 ---
 
@@ -70,121 +70,79 @@ Each result includes:
 
 1️⃣ PDF Upload
 
-The user uploads a PDF document through the web interface.
-This document typically contains mixed content such as narrative text, opinions, and factual statements.
-
-At this stage:
-- No assumptions are made about correctness
-- The document is treated as raw, unverified input
+Users upload a PDF document through the web interface.
+The document may contain a mix of narrative text, opinions, and factual statements.
 
 
 2️⃣ Text Extraction
 
-The uploaded PDF is parsed page by page using a PDF parsing library.
+The application extracts raw text from the uploaded PDF:
 
-- Raw text is extracted from each page
-- Layout artifacts such as line breaks and inconsistent spacing are normalized
-- Non-textual content (images, formatting) is ignored
+- Processes the document page by page
 
-The output of this step is a clean, continuous text representation of the document that can be processed by downstream models.
+- Normalizes spacing and formatting artifacts
+
+- Produces clean, continuous text for analysis
 
 
 3️⃣ Claim Extraction (LLM-Based)
 
-The extracted text is passed to a Large Language Model with a strictly constrained prompt that instructs the model to:
+The cleaned text is sent to a Large Language Model with strict instructions to extract only factual, verifiable claims.
 
-- Identify only factual, verifiable claims
+Extracted claims must include at least one of:
 
-- Ignore opinions, predictions, and vague statements
+- A number or statistic
 
-- Focus on claims that include:
+- A date or time reference
 
-  - Numbers or statistics
+- A price or percentage
 
-  - Dates or time references
+- A named event with temporal context
 
-  - Prices or percentages
-
-- Named events with clear temporal context
-
-The LLM outputs a structured JSON list of claims, each annotated with:
-
-The claim text
-
-A category (e.g., economic, technological, political)
-
-A time reference (if applicable)
-
-This step converts unstructured text into machine-verifiable units.
+Each claim is returned in structured JSON format, making it suitable for automated verification.
 
 4️⃣ Live Web Search (Tavily)
 
-Each extracted claim is independently queried against the live web using a search API.
+Every extracted claim is queried against the live web using Tavily Search:
 
-For each claim:
+- Retrieves up-to-date, relevant sources
 
-- Relevant, up-to-date sources are retrieved
+- Collects source snippets and URLs
 
-- Source snippets and URLs are collected
-
-- Only recent and authoritative information is considered
-
-This step ensures that verification is based on current, real-world data, not static or outdated knowledge.
+- Ensures verification is grounded in current information
 
 5️⃣ LLM-Based Verification
 
-The original claim and the retrieved web evidence are passed back to the LLM for verification.
+The claim and its retrieved sources are passed back to the LLM for reasoning.
+The model compares the claim strictly against the evidence and classifies it as:
 
-The model is instructed to:
+- Verified – fully supported by sources
 
-- Compare the claim strictly against the provided sources
+- Inaccurate – partially correct or outdated
 
-Avoid speculation or unsupported reasoning
+- False – unsupported or contradicted
 
-Classify the claim into one of three categories:
+A short explanation and corrected information (if applicable) are generated for each claim.
 
-Verified — fully supported by evidence
+6️⃣ Results & Output
 
-Inaccurate — partially correct or outdated
+The final results include:
 
-False — contradicted or unsupported
+- Verdict for each claim
 
-The model also produces:
+- Explanation of the decision
 
-A concise explanation of the verdict
-
-Corrected information where applicable
-
-This step acts as a reasoning layer, not a source of truth.
-
-6️⃣ Verdict + Sources
-
-The final output for each claim includes:
-
-A clear verdict (Verified / Inaccurate / False)
-
-An explanation grounded in evidence
-
-Links to the original sources used for verification
+- Source URLs used for verification
 
 Results are:
 
-Displayed in a clean, user-friendly UI
+- Displayed in a clean, color-coded UI
 
-Color-coded for quick scanning
+- Easy to scan and review
 
-Exportable as a structured JSON report
+- Downloadable as a structured JSON report
 
 This makes the system suitable for editorial review, compliance checks, or pre-publication validation.
----
-
-## 🧪 Reliability & Error Handling
-
-- Gracefully handles API rate limits and quota exhaustion
-- Caches extraction results to reduce repeated LLM calls
-- Avoids crashes when APIs are temporarily unavailable
-- Clearly communicates free-tier constraints to users
-
 ---
 
 ## 📦 Installation (Local)
